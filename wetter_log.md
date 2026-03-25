@@ -1,0 +1,1 @@
+- 2026-03-25 13:25: Das Wetter in Bern ist %%t %%C
