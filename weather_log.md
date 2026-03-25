@@ -1,0 +1,1 @@
+- 2026-03-25 13:28: The weather in Bern is +12°C Light rain
