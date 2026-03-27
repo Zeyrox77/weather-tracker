@@ -43,12 +43,13 @@ version: '3.8'
 services:
   wetter-bot:
     image: alpine:latest
-    container_name: github_wetter_bot_bern
+    container_name: github_weather_bot_bern
     restart: unless-stopped
     environment:
-      - GIT_USER=your_github_username
-      - GIT_TOKEN=your_personal_access_token
-      - REPO=weather-tracker
+      # ENTER YOUR DATA HERE:
+      - GIT_USER=YOUR_GITHUB_USERNAME
+      - GIT_TOKEN=YOUR_PERSONAL_ACCESS_TOKEN
+      - REPO=YOUR_REPO_NAME
     command: >
       /bin/sh -c "
       apk add --no-cache git curl tzdata &&
@@ -56,8 +57,8 @@ services:
       rm -rf /repo &&
       git clone https://$${GIT_USER}:$${GIT_TOKEN}@github.com/$${GIT_USER}/$${REPO}.git /repo &&
       cd /repo &&
-      git config user.name 'Zeyrox Weather Bot' &&
-      git config user.email '141281496+Zeyrox77@users.noreply.github.com' &&
+      git config user.name 'YOUR_BOT_NAME' &&
+      git config user.email 'YOUR_GITHUB_NOREPLY_EMAIL' &&
       while true; do
         HOUR=$$(date +'%H') &&
         if [ \"$$HOUR\" -eq 12 ]; then
@@ -65,14 +66,15 @@ services:
           echo \"It is noon! Waiting $$DELAY seconds before pushing...\" &&
           sleep $$DELAY &&
 
-          DATUM=$$(date +'%Y-%m-%d %H:%M') &&
-          WETTER=$$(curl -s 'wttr.in/Bern?format=%t+%C&lang=en') &&
-          echo \"- $$DATUM: The weather in Bern is $$WETTER\" >> weather_log.md &&
+          DATE=$$(date +'%Y-%m-%d %H:%M') &&
+          WEATHER=$$(curl -s 'wttr.in/Bern?format=%t+%C&lang=en') &&
+          echo \"- $$DATE: The weather in Bern is $$WEATHER\" >> weather_log.md &&
           git add weather_log.md &&
-          git commit -m \"Automatic weather update: $$DATUM\" || echo 'No new changes.' &&
+          git commit -m \"Automatic weather update: $$DATE\" || echo 'No new changes.' &&
           git push &&
           echo 'Successfully pushed to GitHub!' &&
 
+          echo 'Push done. Going to sleep until tomorrow...' &&
           sleep 72000;
         else
           echo \"Current hour: $$HOUR. Waiting for the noon window...\" &&
@@ -84,16 +86,25 @@ services:
 
 ### Setup
 
-1. **Clone this repository** or create a new one named `weather-tracker` on GitHub.
-2. Generate a **GitHub Personal Access Token** with `repo` write permissions.
-3. Fill in your credentials in the `environment` section of the `docker-compose.yml`.
+1. **Create a new repository** on GitHub (e.g. `weather-tracker`).
+2. Generate a **GitHub Personal Access Token** with `repo` write permissions — see [GitHub Docs](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens).
+3. Fill in your credentials in the `environment` section of the `docker-compose.yml`:
+
+| Placeholder | Replace with |
+|---|---|
+| `YOUR_GITHUB_USERNAME` | Your GitHub username |
+| `YOUR_PERSONAL_ACCESS_TOKEN` | Your GitHub PAT |
+| `YOUR_REPO_NAME` | Your repository name (e.g. `weather-tracker`) |
+| `YOUR_BOT_NAME` | Display name for Git commits (e.g. `My Weather Bot`) |
+| `YOUR_GITHUB_NOREPLY_EMAIL` | Your GitHub no-reply email (e.g. `12345678+username@users.noreply.github.com`) |
+
 4. Deploy via Portainer or run manually:
 
 ```bash
 docker compose up -d
 ```
 
-The container will start, set the timezone to `Europe/Zurich`, clone the repository, and begin its daily loop immediately.
+The container will start, set the timezone to `Europe/Zurich`, clone the repository, and begin its daily loop.
 
 ---
 
@@ -104,7 +115,7 @@ The container will start, set the timezone to `Europe/Zurich`, clone the reposit
 | Base image | `alpine:latest` |
 | Timezone | `Europe/Zurich` (CET/CEST) |
 | Weather source | [wttr.in](https://wttr.in/Bern) |
-| Update schedule | Daily ~12:00, with random ±2h offset |
+| Update schedule | Daily ~12:00, with random 0–2h offset |
 | Restart policy | `unless-stopped` |
 
 ---
@@ -115,7 +126,7 @@ When generating your Personal Access Token (PAT), the following scope is require
 
 - `repo` — Full control of private/public repositories (for push access)
 
-> ⚠️ Never commit your token directly into the `docker-compose.yml`. Use environment variables or a `.env` file.
+> ⚠️ Never commit your token directly into the `docker-compose.yml`. Use environment variables or a `.env` file instead.
 
 ---
 
