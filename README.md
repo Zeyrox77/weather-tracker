@@ -126,7 +126,7 @@ When generating your Personal Access Token (PAT), the following scope is require
 
 - `repo` — Full control of private/public repositories (for push access)
 
-> ⚠️ Never commit your token directly into the `docker-compose.yml`. Use environment variables or a `.env` file instead.
+> ⚠️ Never push your `docker-compose.yml` to a public repository — it contains your personal access token. Keep it only on your local server.
 
 ---
 
