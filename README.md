@@ -65,6 +65,7 @@ services:
           DELAY=$$(awk 'BEGIN{srand(); print int(rand() * 7200)}') &&
           echo \"It is noon! Waiting $$DELAY seconds before pushing...\" &&
           sleep $$DELAY &&
+          git pull --rebase &&
 
           DATE=$$(date +'%Y-%m-%d %H:%M') &&
           WEATHER=$$(curl -s 'wttr.in/Bern?format=%t+%C&lang=en') &&
